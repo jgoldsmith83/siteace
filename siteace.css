@@ -61,16 +61,8 @@ body {
 	font-weight: bolder;
 }
 
-li:hover {
-	text-decoration: none;
-}
-
-a {
-	text-decoration: none;
-}
-
-.web_item_entry:hover {
-	text-decoration: none;
+a:link, a:visted, a:hover, a:active {
+    text-decoration: none;
 }
 
 .website-list {
