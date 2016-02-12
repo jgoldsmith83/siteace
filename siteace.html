@@ -10,6 +10,7 @@
 	{{> yield "navbar"}}
 	{{> yield "main"}}
 	{{> yield "sidebar"}}
+	{{> yield "topsiteslist"}}
 	{{> yield "comments"}}
 </template>
 
@@ -37,11 +38,11 @@
 						</li>
 				</ul>
 
-				<form class="navbar-form navbar-left" role="search">
-  				<div class="form-group">
-    				<input type="text" class="form-control" id="search" placeholder="Search..">
-  				</div>
-  				<div class="btn btn-default js-btn-search"><span class="glyphicon glyphicon-search"></span></div>
+				<form class="navbar-form navbar-right" role="search">
+					<div class="form-group has-feedback has-feedback-left">
+						<input type="text" class="form-control search-box">
+						<i class="form-control-feedback glyphicon glyphicon-search"></i>
+					</div>
 				</form>
 				<div class="container-fluid pull-right login">
 					{{> loginButtons align="right"}}
@@ -73,7 +74,7 @@
 		  </div>
 		  <div class="form-group">
 		  	<label for="image">Screenshot</label>
-		  	<input type="text" class="form-control" name="image" id="image" placeholder="https://www.imagehost/myscreenshot.png">
+		  	<input type="text" class="form-control" name="image" id="image" placeholder="https://www.yourimagehost.com/yourscreenshot.png">
 		  </div>
 
 		  <button type="submit" class="btn btn-success">Submit</button>
@@ -99,11 +100,11 @@
 <template name="website_list_admin">
 	<div class="container-fluid col-xl-9 col-lg-9">
 	<div class="container-fluid">
-	<ol>
+	<ul>
 	{{#each websites}}
 		{{> website_item}}
 	{{/each}}
-	</ol>
+	</ul>
 	</div>
 	</div>
 </template>
@@ -135,6 +136,21 @@
 			<div class="btn btn-xs btn-danger js-btn-remove"><span class="glyphicon glyphicon-minus"></span></div>
 		{{/if}}
 </div>
+</template>
+
+<template name="top_sites">
+	<div class="container-fluid top-sites col-lg-4 col-xl-4">
+		<h3 class="topsite">Recent Sites:</h3>
+		<ol>
+			{{#each topsites}}
+				<li class="topsite">
+					<strong>{{title}}</strong><br>
+					<span class="top-site-description">{{description}}</span>
+					<hr>
+				</li>
+			{{/each}}
+		</ol>
+	</div>
 </template>
 
 <template name="site_details">

@@ -40,4 +40,14 @@
 				rating:0
     	});
     }
-  });
+});
+
+Meteor.methods({
+    getSiteData: function(method,url,data,callback) {
+
+        let response = HTTP.call(method,url,data,callback);
+        let parsedResponse = JSON.parse(response);
+
+        console.log(response);
+    }
+});

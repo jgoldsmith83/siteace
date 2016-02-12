@@ -1,30 +1,34 @@
-$(".js-btn-remove").hide();
-
+	
+	//routing directives
 	Router.configure({
 		layoutTemplate: 'homeLayout'
 	});
 
 	Router.route("/", function() {
 		this.render("navbar", {
-			to: "navbar"
+			to:"navbar"
 		});
 
 		this.render("website_list", {
-				to: "main"
+				to:"main"
 		});
 
 		this.render("website_form", {
-			to: "sidebar"
+			to:"sidebar"
 		});
+
+		this.render("top_sites", {
+			to:"topsiteslist"
+		})
 	});
 
 	Router.route("/:_id", function() {
 		this.render("navbar", {
-			to: "navbar"
+			to:"navbar"
 		});
 
 		this.render("site_details", {
-			to: "main",
+			to:"main",
 			data: function() {
 				return Websites.findOne({_id:this.params._id});
 			}
@@ -32,31 +36,37 @@ $(".js-btn-remove").hide();
 
 	});
 
+	$('.search-box').keydown(function() {
 
-	/////
-	// Packaged template configs 
-	/////
+	});
 
+
+	// Packaged template configs
 	Accounts.ui.config({
 		passwordSignupFields: "USERNAME_AND_EMAIL"
-	})
+	});
 
 	
 	Comments.ui.config({
 		template: "bootstrap"
-	})
+	});
 
 
-	Session.set('searchTerm', null)
-
-	// helper function that returns all available websites
+	//Template helper functions - return data based on context
 	Template.website_list.helpers({
 		websites:function(){
-			if(Session.get('searchTerm')){
-				return Websites.find({title:Session.get('searchTerm')}, {sort: {rating: -1}})
-			} else {
-				return Websites.find({}, {sort: {rating: -1}});
-			}
+				if(Session.get('searchTerm')) {
+					let searchText = Session.get('searchTerm');
+					return Websites.find({$or: [{title: new RegExp(searchText,'gi')}, {description: new RegExp(searchText, 'gi')}]}, {sort: {rating: -1}});
+				} else {
+					return Websites.find({}, {sort: {rating: -1}});
+				}
+		}
+	});
+
+	Template.top_sites.helpers({
+		topsites:function() {
+			return Websites.find({}, {sort: {createdOn: -1}, limit: 5});
 		}
 	});
 
@@ -80,48 +90,54 @@ $(".js-btn-remove").hide();
 		}
 	});
 
-
-	/////
-	// template events 
-	/////
-
+	//template events
 	Template.navbar.events({
-		"click .js-btn-search":function(event) {
-			var searchText = $('.form-control').val();
+		"keyup .search-box":function(event) {
+			let searchText = $('.search-box').val();
 			
-			if(! searchText == null) {
-				Session.set('searchTerm', searchText)
+			Session.set('searchTerm', searchText);
+			$('.form-control-feedback').removeClass('glyphicon-search');
+			$('.form-control-feedback').addClass('glyphicon-remove');
+			$('.glyphicon-remove').click(function() {
+				$('.search-box').val('');
+			});
+
+			if(searchText < 1) {
+				Session.set('searchTerm', null);
+
+				$('.form-control-feedback').removeClass('glyphicon-remove');
+				$('.form-control-feedback').addClass('glyphicon-search');
 			}
+
+			return false; //stop the form from reloading the page
 		}
 	});
 
 	Template.website_item.events({
 		"click .js-upvote":function(event){
-			// example of how you can access the id for the website in the database
-			// (this is the data context for the template)
+			// access the id for the website in the database
 			var website_id = this._id;
-			// put the code in here to add a vote to a website!
+			// increment rating field to add a vote to a website
 			if(Meteor.user()) {
 				Websites.update({_id:website_id}, 
 												{$inc: {rating: 1}});
 
-				return false;// prevent the button from reloading the page
+				return false; //prevent the button from reloading the page
 			} else {
 				Bert.alert("Only registered users can vote.", "danger", "growl-top-left");
 			}
 		}, 
 		"click .js-downvote":function(event){
 
-			// example of how you can access the id for the website in the database
-			// (this is the data context for the template)
+			// access the id for the website in the database
 			var website_id = this._id;
 
-			// put the code in here to remove a vote from a website!
+			// decrement rating field to remove a vote from a website!
 			if(Meteor.user()) {
 				Websites.update({_id:website_id}, 
 												{$inc: {rating: -1}});
 
-				return false;// prevent the button from reloading the page
+				return false; //prevent the button from reloading the page
 			} else {
 				Bert.alert("Only registered users can vote!", "danger", "growl-top-left");
 			}
@@ -137,22 +153,27 @@ $(".js-btn-remove").hide();
 
 	Template.website_form.events({
 		"click .js-toggle-website-form":function(event){
-
 			$(".js-toggle-website-form").hide(500, function() {
 				$("#website_form").toggle('slow');
 			});
-		}, 
+		},
+		"blur #url":function(event) {
+			let url = event.target.value;
+			let urlData = Meteor.call('getSiteData', 'GET', url, {}, function() {
+				console.log(urlData);
+			})
+			console.log(urlData);
+		},
 		"submit .js-save-website-form":function(event){
-
-			// here is an example of how to get the url out of the form:
-			var url = event.target.url.value;
 			
-			//  put your website saving code in here!
-			var url = event.target.url.value;
-			var title = event.target.title.value;
-			var description = event.target.description.value;
-			var image = event.target.image.value;
+			//grab form field values
+			let url = event.target.url.value;
+			let title = event.target.title.value;
+			let description = event.target.description.value;
+			let image = event.target.image.value;
 
+			//conditionally insert website entries
+			//Bert.alert() notifies user of failed entry if url or title are empty
 			if (url.length < 1) {
 				Bert.alert("You need to include a URL", "danger", "growl-top-right");
 				console.log(description)
@@ -228,7 +249,7 @@ $(".js-btn-remove").hide();
 
 			}
 
-			return false;// stop the form submit from reloading the page
+			return false; // stop the form submit from reloading the page
 
 		},
 		'click .js-close-form':function(event) {
