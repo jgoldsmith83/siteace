@@ -1,4 +1,4 @@
-	
+
 	//routing directives
 	Router.configure({
 		layoutTemplate: 'homeLayout'
@@ -46,7 +46,7 @@
 		passwordSignupFields: "USERNAME_AND_EMAIL"
 	});
 
-	
+
 	Comments.ui.config({
 		template: "bootstrap"
 	});
@@ -94,7 +94,7 @@
 	Template.navbar.events({
 		"keyup .search-box":function(event) {
 			let searchText = $('.search-box').val();
-			
+
 			Session.set('searchTerm', searchText);
 			$('.form-control-feedback').removeClass('glyphicon-search');
 			$('.form-control-feedback').addClass('glyphicon-remove');
@@ -119,14 +119,14 @@
 			var website_id = this._id;
 			// increment rating field to add a vote to a website
 			if(Meteor.user()) {
-				Websites.update({_id:website_id}, 
+				Websites.update({_id:website_id},
 												{$inc: {rating: 1}});
 
 				return false; //prevent the button from reloading the page
 			} else {
 				Bert.alert("Only registered users can vote.", "danger", "growl-top-left");
 			}
-		}, 
+		},
 		"click .js-downvote":function(event){
 
 			// access the id for the website in the database
@@ -134,7 +134,7 @@
 
 			// decrement rating field to remove a vote from a website!
 			if(Meteor.user()) {
-				Websites.update({_id:website_id}, 
+				Websites.update({_id:website_id},
 												{$inc: {rating: -1}});
 
 				return false; //prevent the button from reloading the page
@@ -159,13 +159,12 @@
 		},
 		"blur #url":function(event) {
 			let url = event.target.value;
-			let urlData = Meteor.call('getSiteData', 'GET', url, {}, function() {
-				console.log(urlData);
-			})
-			console.log(urlData);
+			let siteData = Meteor.call('getSiteData',url);
+
+			console.log(url);
 		},
 		"submit .js-save-website-form":function(event){
-			
+
 			//grab form field values
 			let url = event.target.url.value;
 			let title = event.target.title.value;
@@ -214,7 +213,7 @@
 						$(".js-toggle-website-form").show(500);
 					});
 				}
-				
+
 			} else if (image.length < 1) {
 				Bert.alert("You didn't add a screenshot", "warning", "growl-top-right");
 				Websites.insert({

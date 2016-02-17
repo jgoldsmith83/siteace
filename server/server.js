@@ -4,8 +4,8 @@
     if (!Websites.findOne()){
     	console.log("No websites yet. Creating starter data.");
     	  Websites.insert({
-    		title:"Goldsmiths Computing Department", 
-    		url:"http://www.gold.ac.uk/computing/", 
+    		title:"Goldsmiths Computing Department",
+    		url:"http://www.gold.ac.uk/computing/",
     		description:"This is where this course was developed.",
             user:"SiteAce",
     		image:"goldsmiths.png",
@@ -13,8 +13,8 @@
 				rating:0
     	});
     	 Websites.insert({
-    		title:"University of London", 
-    		url:"http://www.londoninternational.ac.uk/courses/undergraduate/goldsmiths/bsc-creative-computing-bsc-diploma-work-entry-route", 
+    		title:"University of London",
+    		url:"http://www.londoninternational.ac.uk/courses/undergraduate/goldsmiths/bsc-creative-computing-bsc-diploma-work-entry-route",
     		description:"University of London International Programme.",
             user:"SiteAce",
     		image:"uol.png",
@@ -22,8 +22,8 @@
 				rating:0
     	});
     	 Websites.insert({
-    		title:"Coursera", 
-    		url:"http://www.coursera.org", 
+    		title:"Coursera",
+    		url:"http://www.coursera.org",
     		description:"Universal access to the world’s best education.",
             user:"SiteAce",
     		image:"coursera.png",
@@ -31,8 +31,8 @@
 				rating:0
     	});
     	Websites.insert({
-    		title:"Google", 
-    		url:"http://www.google.com", 
+    		title:"Google",
+    		url:"http://www.google.com",
     		description:"Popular search engine.",
             user:"SiteAce",
     		image:"google.png",
@@ -43,11 +43,17 @@
 });
 
 Meteor.methods({
-    getSiteData: function(method,url,data,callback) {
+  getSiteData: function(error, url) {
+    let address = url;
+    let response = HTTP.call('GET',address,{});
+      if(error) {
+        console.log(error);
+      } else {
+        let start = response.content.toLowerCase().indexOf('<title>');
+        let end = response.content.toLowerCase().indexOf('</title>');
+        let endResult = response.content.substring(start + '<title>'.length, end);
 
-        let response = HTTP.call(method,url,data,callback);
-        let parsedResponse = JSON.parse(response);
-
-        console.log(response);
-    }
+        return endResult;
+      }
+  }
 });
